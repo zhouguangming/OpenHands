@@ -138,10 +138,7 @@ class Metrics:
     def log(self):
         """Log the metrics."""
         metrics = self.get()
-        logs = ''
-        for key, value in metrics.items():
-            logs += f'{key}: {value}\n'
-        return logs
+        return ''.join(f'{key}: {value}\n' for key, value in metrics.items())
 
     def __repr__(self):
         return f'Metrics({self.get()}'
