@@ -245,7 +245,7 @@ def convert_tool_call_to_string(tool_call: dict) -> str:
     if tool_call['type'] != 'function':
         raise FunctionCallConversionError("Tool call type must be 'function'.")
 
-    ret = f"<function={tool_call['function']['name']}>\n"
+    parts = [f"<function={tool_call['function']['name']}>\n"]
     try:
         args = json.loads(tool_call['function']['arguments'])
     except json.JSONDecodeError as e:
@@ -254,29 +254,29 @@ def convert_tool_call_to_string(tool_call: dict) -> str:
         ) from e
     for param_name, param_value in args.items():
         is_multiline = isinstance(param_value, str) and '\n' in param_value
-        ret += f'<parameter={param_name}>'
+        parts.append(f'<parameter={param_name}>')
         if is_multiline:
-            ret += '\n'
-        ret += f'{param_value}'
+            parts.append('\n')
+        parts.append(f'{param_value}')
         if is_multiline:
-            ret += '\n'
-        ret += '</parameter>\n'
-    ret += '</function>'
-    return ret
+            parts.append('\n')
+        parts.append('</parameter>\n')
+    parts.append('</function>')
+    return ''.join(parts)
 
 
 def convert_tools_to_description(tools: list[dict]) -> str:
-    ret = ''
+    parts = []
     for i, tool in enumerate(tools):
         assert tool['type'] == 'function'
         fn = tool['function']
         if i > 0:
-            ret += '\n'
-        ret += f"---- BEGIN FUNCTION #{i+1}: {fn['name']} ----\n"
-        ret += f"Description: {fn['description']}\n"
+            parts.append('\n')
+        parts.append(f"---- BEGIN FUNCTION #{i+1}: {fn['name']} ----\n")
+        parts.append(f"Description: {fn['description']}\n")
 
         if 'parameters' in fn:
-            ret += 'Parameters:\n'
+            parts.append('Parameters:\n')
             properties = fn['parameters'].get('properties', {})
             required_params = set(fn['parameters'].get('required', []))
 
@@ -294,14 +294,14 @@ def convert_tools_to_description(tools: list[dict]) -> str:
                     enum_values = ', '.join(f'`{v}`' for v in param_info['enum'])
                     desc += f'\nAllowed values: [{enum_values}]'
 
-                ret += (
+                parts.append(
                     f'  ({j+1}) {param_name} ({param_type}, {param_status}): {desc}\n'
                 )
         else:
-            ret += 'No parameters are required for this function.\n'
+            parts.append('No parameters are required for this function.\n')
 
-        ret += f'---- END FUNCTION #{i+1} ----\n'
-    return ret
+        parts.append(f'---- END FUNCTION #{i+1} ----\n')
+    return ''.join(parts)
 
 
 def convert_fncall_messages_to_non_fncall_messages(

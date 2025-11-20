@@ -51,46 +51,50 @@ class BrowserOutputObservation(Observation):
     def get_agent_obs_text(self) -> str:
         """Get a concise text that will be shown to the agent."""
         if self.trigger_by_action == ActionType.BROWSE_INTERACTIVE:
-            text = f'[Current URL: {self.url}]\n'
-            text += f'[Focused element bid: {self.focused_element_bid}]\n\n'
+            parts = [
+                f'[Current URL: {self.url}]\n',
+                f'[Focused element bid: {self.focused_element_bid}]\n\n',
+            ]
             if self.error:
-                text += (
+                parts.append(
                     '================ BEGIN error message ===============\n'
                     'The following error occurred when executing the last action:\n'
                     f'{self.last_browser_action_error}\n'
                     '================ END error message ===============\n'
                 )
             else:
-                text += '[Action executed successfully.]\n'
+                parts.append('[Action executed successfully.]\n')
             try:
                 # We do not filter visible only here because we want to show the full content
                 # of the web page to the agent for simplicity.
                 # FIXME: handle the case when the web page is too large
                 cur_axtree_txt = self.get_axtree_str(filter_visible_only=False)
-                text += (
+                parts.append(
                     f'============== BEGIN accessibility tree ==============\n'
                     f'{cur_axtree_txt}\n'
                     f'============== END accessibility tree ==============\n'
                 )
             except Exception as e:
-                text += (
+                parts.append(
                     f'\n[Error encountered when processing the accessibility tree: {e}]'
                 )
-            return text
+            return ''.join(parts)
 
         elif self.trigger_by_action == ActionType.BROWSE:
-            text = f'[Current URL: {self.url}]\n'
+            parts = [f'[Current URL: {self.url}]\n']
             if self.error:
-                text += (
+                parts.append(
                     '================ BEGIN error message ===============\n'
                     'The following error occurred when trying to visit the URL:\n'
                     f'{self.last_browser_action_error}\n'
                     '================ END error message ===============\n'
                 )
-            text += '============== BEGIN webpage content ==============\n'
-            text += self.content
-            text += '\n============== END webpage content ==============\n'
-            return text
+            parts.extend([
+                '============== BEGIN webpage content ==============\n',
+                self.content,
+                '\n============== END webpage content ==============\n',
+            ])
+            return ''.join(parts)
         else:
             raise ValueError(f'Invalid trigger_by_action: {self.trigger_by_action}')
 
