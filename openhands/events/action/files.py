@@ -115,24 +115,32 @@ class FileEditAction(Action):
     impl_source: FileEditSource = FileEditSource.OH_ACI
 
     def __repr__(self) -> str:
-        ret = '**FileEditAction**\n'
-        ret += f'Path: [{self.path}]\n'
-        ret += f'Thought: {self.thought}\n'
+        parts = [
+            '**FileEditAction**\n',
+            f'Path: [{self.path}]\n',
+            f'Thought: {self.thought}\n',
+        ]
 
         if self.impl_source == FileEditSource.LLM_BASED_EDIT:
-            ret += f'Range: [L{self.start}:L{self.end}]\n'
-            ret += f'Content:\n```\n{self.content}\n```\n'
+            parts.extend([
+                f'Range: [L{self.start}:L{self.end}]\n',
+                f'Content:\n```\n{self.content}\n```\n',
+            ])
         else:  # OH_ACI mode
-            ret += f'Command: {self.command}\n'
+            parts.append(f'Command: {self.command}\n')
             if self.command == 'create':
-                ret += f'Created File with Text:\n```\n{self.file_text}\n```\n'
+                parts.append(f'Created File with Text:\n```\n{self.file_text}\n```\n')
             elif self.command == 'str_replace':
-                ret += f'Old String: ```\n{self.old_str}\n```\n'
-                ret += f'New String: ```\n{self.new_str}\n```\n'
+                parts.extend([
+                    f'Old String: ```\n{self.old_str}\n```\n',
+                    f'New String: ```\n{self.new_str}\n```\n',
+                ])
             elif self.command == 'insert':
-                ret += f'Insert Line: {self.insert_line}\n'
-                ret += f'New String: ```\n{self.new_str}\n```\n'
+                parts.extend([
+                    f'Insert Line: {self.insert_line}\n',
+                    f'New String: ```\n{self.new_str}\n```\n',
+                ])
             elif self.command == 'undo_edit':
-                ret += 'Undo Edit\n'
+                parts.append('Undo Edit\n')
             # We ignore "view" command because it will be mapped to a FileReadAction
-        return ret
+        return ''.join(parts)

@@ -33,7 +33,6 @@ class CmdOutputMetadata(BaseModel):
     @classmethod
     def to_ps1_prompt(cls) -> str:
         """Convert the required metadata into a PS1 prompt."""
-        prompt = CMD_OUTPUT_PS1_BEGIN
         json_str = json.dumps(
             {
                 'pid': '$!',
@@ -47,9 +46,12 @@ class CmdOutputMetadata(BaseModel):
         )
         # Make sure we escape double quotes in the JSON string
         # So that PS1 will keep them as part of the output
-        prompt += json_str.replace('"', r'\"')
-        prompt += CMD_OUTPUT_PS1_END + '\n'  # Ensure there's a newline at the end
-        return prompt
+        return ''.join([
+            CMD_OUTPUT_PS1_BEGIN,
+            json_str.replace('"', r'\"'),
+            CMD_OUTPUT_PS1_END,
+            '\n',  # Ensure there's a newline at the end
+        ])
 
     @classmethod
     def matches_ps1_metadata(cls, string: str) -> list[re.Match[str]]:
@@ -154,14 +156,14 @@ class CmdOutputObservation(Observation):
         )
 
     def to_agent_observation(self) -> str:
-        ret = f'{self.metadata.prefix}{self.content}{self.metadata.suffix}'
+        parts = [self.metadata.prefix, self.content, self.metadata.suffix]
         if self.metadata.working_dir:
-            ret += f'\n[Current working directory: {self.metadata.working_dir}]'
+            parts.append(f'\n[Current working directory: {self.metadata.working_dir}]')
         if self.metadata.py_interpreter_path:
-            ret += f'\n[Python interpreter: {self.metadata.py_interpreter_path}]'
+            parts.append(f'\n[Python interpreter: {self.metadata.py_interpreter_path}]')
         if self.metadata.exit_code != -1:
-            ret += f'\n[Command finished with exit code {self.metadata.exit_code}]'
-        return ret
+            parts.append(f'\n[Command finished with exit code {self.metadata.exit_code}]')
+        return ''.join(parts)
 
 
 @dataclass

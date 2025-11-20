@@ -150,19 +150,25 @@ class FileEditObservation(Observation):
 
         # Check if there are any changes
         if change_applied and self.old_content == self.new_content:
-            msg = '(no changes detected. Please make sure your edits change '
-            msg += 'the content of the existing file.)\n'
+            msg = (
+                '(no changes detected. Please make sure your edits change '
+                'the content of the existing file.)\n'
+            )
             self._diff_cache = msg
             return self._diff_cache
 
         edit_groups = self.get_edit_groups(n_context_lines=n_context_lines)
 
         if change_applied:
-            header = f'[Existing file {self.path} is edited with '
-            header += f'{len(edit_groups)} changes.]'
+            header = (
+                f'[Existing file {self.path} is edited with '
+                f'{len(edit_groups)} changes.]'
+            )
         else:
-            header = f"[Changes are NOT applied to {self.path} - Here's how "
-            header += 'the file looks like if changes are applied.]'
+            header = (
+                f"[Changes are NOT applied to {self.path} - Here's how "
+                'the file looks like if changes are applied.]'
+            )
         result = [header]
 
         op_type = 'edit' if change_applied else 'ATTEMPTED edit'
