@@ -37,9 +37,7 @@ async def submit_feedback(request: Request, conversation_id: str) -> JSONRespons
     async_stream = AsyncEventStreamWrapper(
         request.state.conversation.event_stream, filter_hidden=True
     )
-    trajectory = []
-    async for event in async_stream:
-        trajectory.append(event_to_dict(event))
+    trajectory = [event_to_dict(event) async for event in async_stream]
     feedback = FeedbackDataModel(
         email=body.get('email', ''),
         version=body.get('version', ''),

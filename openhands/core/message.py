@@ -42,9 +42,9 @@ class ImageContent(Content):
 
     @model_serializer
     def serialize_model(self) -> list[dict[str, str | dict[str, str]]]:
-        images: list[dict[str, str | dict[str, str]]] = []
-        for url in self.image_urls:
-            images.append({'type': self.type, 'image_url': {'url': url}})
+        images: list[dict[str, str | dict[str, str]]] = [
+            {'type': self.type, 'image_url': {'url': url}} for url in self.image_urls
+        ]
         if self.cache_prompt and images:
             images[-1]['cache_control'] = {'type': 'ephemeral'}
         return images

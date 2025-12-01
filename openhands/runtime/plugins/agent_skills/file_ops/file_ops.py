@@ -371,11 +371,12 @@ def find_file(file_name: str, dir_path: str = './') -> None:
         _output_error(f'Directory {dir_path} not found')
         return
 
-    matches = []
-    for root, _, files in os.walk(dir_path):
-        for file in files:
-            if file_name in file:
-                matches.append(os.path.join(root, file))
+    matches = [
+        os.path.join(root, file)
+        for root, _, files in os.walk(dir_path)
+        for file in files
+        if file_name in file
+    ]
 
     if matches:
         print(f'[Found {len(matches)} matches for "{file_name}" in {dir_path}]')
