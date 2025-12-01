@@ -49,10 +49,11 @@ class LLMSummarizingCondenser(RollingCondenser):
         )
 
         # Identify events to be forgotten (those not in head or tail)
-        forgotten_events = []
-        for event in events[self.keep_first : -events_from_tail]:
-            if not isinstance(event, AgentCondensationObservation):
-                forgotten_events.append(event)
+        forgotten_events = [
+            event
+            for event in events[self.keep_first : -events_from_tail]
+            if not isinstance(event, AgentCondensationObservation)
+        ]
 
         # Construct prompt for summarization
         prompt = """You are maintaining state history for an LLM-based code agent. Track:

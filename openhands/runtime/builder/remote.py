@@ -49,8 +49,7 @@ class RemoteRuntimeBuilder(RuntimeBuilder):
         ]
 
         # Add additional tags if present
-        for tag in tags[1:]:
-            files.append(('tags', (None, tag)))
+        files.extend(('tags', (None, tag)) for tag in tags[1:])
 
         # Send the POST request to /build (Begins the build process)
         try:

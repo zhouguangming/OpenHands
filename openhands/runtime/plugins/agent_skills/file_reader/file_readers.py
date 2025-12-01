@@ -222,9 +222,9 @@ def parse_pptx(file_path: str) -> None:
         text = []
         for slide_idx, slide in enumerate(pres.slides):
             text.append(f'@@ Slide {slide_idx + 1} @@')
-            for shape in slide.shapes:
-                if hasattr(shape, 'text'):
-                    text.append(shape.text)
+            text.extend(
+                shape.text for shape in slide.shapes if hasattr(shape, 'text')
+            )
         print('\n'.join(text))
 
     except Exception as e:

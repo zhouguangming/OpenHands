@@ -25,9 +25,7 @@ async def get_trajectory(request: Request) -> JSONResponse:
         async_stream = AsyncEventStreamWrapper(
             request.state.conversation.event_stream, filter_hidden=True
         )
-        trajectory = []
-        async for event in async_stream:
-            trajectory.append(event_to_trajectory(event))
+        trajectory = [event_to_trajectory(event) async for event in async_stream]
         return JSONResponse(
             status_code=status.HTTP_200_OK, content={'trajectory': trajectory}
         )

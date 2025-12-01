@@ -9,7 +9,7 @@ def remove_fields(obj, fields: set[str]):
         for field in fields:
             if field in obj:
                 del obj[field]
-        for _, value in obj.items():
+        for value in obj.values():
             remove_fields(value, fields)
     elif isinstance(obj, (list, tuple)):
         for item in obj:
